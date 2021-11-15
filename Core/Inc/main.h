@@ -63,15 +63,15 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart);
 //uint8_t numTrays = 2;
 //uint8_t maxSelsPerTray = 16;
 
-#define numTrays 2
+#define numTrays 4
 #define maxSelsPerTray 16
 
 
 
 #define Tray0_Sels 4
 #define Tray1_Sels 4
-#define Tray2_Sels 0
-#define Tray3_Sels 0
+#define Tray2_Sels 1
+#define Tray3_Sels 1
 #define Tray4_Sels 0
 #define Tray5_Sels 0
 #define Tray6_Sels 0

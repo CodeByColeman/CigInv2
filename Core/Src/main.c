@@ -152,7 +152,7 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 
 
-#define BUFFER_SIZE  100
+#define BUFFER_SIZE  200
 volatile uint8_t data_temp_out[BUFFER_SIZE];
 
 uint8_t data_length = 0;
@@ -184,6 +184,13 @@ uint16_t avgDist[numTrays][maxSelsPerTray];
 uint16_t invVal = 0;
 uint8_t traySels[numTrays];
 
+char s_str[50]; //= "LocationID:placeholder";
+char s2_str[25];// = "numSel:";
+char s3_str[25];// = "numShelf:";
+char s4_str[25];// = "changes:";
+char sx_str[8][5]; // for s1:, s2: ... sx
+
+
 //abc123jkl1
 /* USER CODE END 0 */
 
@@ -193,6 +200,19 @@ uint8_t traySels[numTrays];
  */
 int main(void)
 {
+	strcpy(s_str, "LocationID:placeholder");
+	strcpy(s2_str, "numSel:");
+	strcpy(s3_str, "numShelf:");
+	strcpy(s4_str, "changes:");
+
+	strcpy(sx_str[0], "s1:");
+	strcpy(sx_str[1], "s2:");
+	strcpy(sx_str[2], "s3:");
+	strcpy(sx_str[3], "s4:");
+	strcpy(sx_str[4], "s5:");
+	strcpy(sx_str[5], "s6:");
+	strcpy(sx_str[6], "s7:");
+	strcpy(sx_str[7], "s8:");
 	/* USER CODE BEGIN 1 */
 
 	/* USER CODE END 1 */
@@ -320,7 +340,11 @@ int main(void)
 	uint8_t d3 = 0b00000001; // d3 is the selector for the MainBoardSide I2c Switch
 
 
-	SensorConfig_All();
+
+
+
+
+		SensorConfig_All();
 
 	//	status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
 	//	status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
@@ -684,8 +708,8 @@ int main(void)
 	float beta = (1-alpha);
 	int status;
 
-	status=VL53L0X_GetDistance(&s1, &distance);
-	status=VL53L0X_GetDistance(&s1, &distance);
+	//	status=VL53L0X_GetDistance(&s1, &distance);
+	//	status=VL53L0X_GetDistance(&s1, &distance);
 	//	status=VL53L0X_GetDistance(&s2, &distance);
 	//	status=VL53L0X_GetDistance(&s2, &distance);
 	//	status=VL53L0X_GetDistance(&s3, &distance);// this all g
@@ -730,35 +754,43 @@ int main(void)
 		float raw_mean = 0;
 
 		while (1){
-			d3 = 0b00000001; // d3 is the selector for the MainBoardSide I2c Switch
-
-			status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
-			status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
-
-			VL53L0X_GetDistance(&sx[0][0], &distance);
-			avgDist[0][0] = avgDist[0][0]*(alpha) + distance*(beta);
-			VL53L0X_GetDistance(&sx[0][1], &distance);
-			avgDist[0][1] = avgDist[0][1]*(alpha) + distance*(beta);
-			VL53L0X_GetDistance(&sx[0][2], &distance);
-			avgDist[0][2] = avgDist[0][2]*(alpha) + distance*(beta);
-			VL53L0X_GetDistance(&sx[0][3], &distance);
-			avgDist[0][3] = avgDist[0][3]*(alpha) + distance*(beta);
-
-
-			d3 = 0b00000100; // d3 is the selector for the MainBoardSide I2c Switch
-
-			status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
-			status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
-
-
-			VL53L0X_GetDistance(&sx[1][0], &distance);
-			avgDist[1][0] = avgDist[1][0]*(alpha) + distance*(beta);
-			VL53L0X_GetDistance(&sx[1][1], &distance);
-			avgDist[1][1] = avgDist[1][1]*(alpha) + distance*(beta);
-			VL53L0X_GetDistance(&sx[1][2], &distance);
-			avgDist[1][2] = avgDist[1][2]*(alpha) + distance*(beta);
-			VL53L0X_GetDistance(&sx[1][3], &distance);
-			avgDist[1][3] = avgDist[1][3]*(alpha) + distance*(beta);
+			avgDist[0][0] = 266;
+			avgDist[0][1] = 233;
+			avgDist[0][2] = 166;
+			avgDist[0][3] = 133;
+			avgDist[1][0] = 206;
+			avgDist[1][1] = 103;
+			avgDist[1][2] = 66;
+			avgDist[1][3] = 33;
+			//			d3 = 0b00000001; // d3 is the selector for the MainBoardSide I2c Switch
+			//
+			//			status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
+			//			status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
+			//
+			//			VL53L0X_GetDistance(&sx[0][0], &distance);
+			//			avgDist[0][0] = avgDist[0][0]*(alpha) + distance*(beta);
+			//			VL53L0X_GetDistance(&sx[0][1], &distance);
+			//			avgDist[0][1] = avgDist[0][1]*(alpha) + distance*(beta);
+			//			VL53L0X_GetDistance(&sx[0][2], &distance);
+			//			avgDist[0][2] = avgDist[0][2]*(alpha) + distance*(beta);
+			//			VL53L0X_GetDistance(&sx[0][3], &distance);
+			//			avgDist[0][3] = avgDist[0][3]*(alpha) + distance*(beta);
+			//
+			//
+			//			d3 = 0b00000100; // d3 is the selector for the MainBoardSide I2c Switch
+			//
+			//			status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
+			//			status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
+			//
+			//
+			//			VL53L0X_GetDistance(&sx[1][0], &distance);
+			//			avgDist[1][0] = avgDist[1][0]*(alpha) + distance*(beta);
+			//			VL53L0X_GetDistance(&sx[1][1], &distance);
+			//			avgDist[1][1] = avgDist[1][1]*(alpha) + distance*(beta);
+			//			VL53L0X_GetDistance(&sx[1][2], &distance);
+			//			avgDist[1][2] = avgDist[1][2]*(alpha) + distance*(beta);
+			//			VL53L0X_GetDistance(&sx[1][3], &distance);
+			//			avgDist[1][3] = avgDist[1][3]*(alpha) + distance*(beta);
 			//
 			//			VL53L0X_GetDistance(&s1, &distance);
 			//			avg_dist1 = avg_dist1*(alpha) + distance*(beta);
@@ -1368,31 +1400,46 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			index_cc = 10;
 
 
-			char s[50] = "LocationID:placeholder";
-			char s2[25] = "numSel:";
-			char s3[25] = "numShelf";
-			char s4[25] = "changes:";
-			char s5[5] = "s1:";
-			char s6[5] = "s2:";
-			char s7[5] = "s3:";
-			char s8[5] = "s4:";
-			char s9[5] = "s5:";
-			char s10[5] = "s6:";
-			char s11[5] = "s7:";
-			char s12[5] = "s8:";
 
-			char *p = s;
-			uint16_t testsize = strlen(s);
+			//moving the following to global access
+			//			char s[50] = "LocationID:placeholder";
+			//			char s2[25] = "numSel:";
+			//			char s3[25] = "numShelf:";
+			//			char s4[25] = "changes:";
+			//			char sx[8][5];
+			//
+			//			strcpy(sx[0], "s1:");
+			//			strcpy(sx[1], "s2:");
+			//			strcpy(sx[2], "s3:");
+			//			strcpy(sx[3], "s4:");
+			//			strcpy(sx[4], "s5:");
+			//			strcpy(sx[5], "s6:");
+			//			strcpy(sx[6], "s7:");
+			//			strcpy(sx[7], "s8:");
 
-			memcpy(&data_temp_out[index_cc], s, strlen(s));
-			index_cc = index_cc + strlen(s);
+
+			//			char s5[5] = "s1:";
+			//			char s6[5] = "s2:";
+			//			char s7[5] = "s3:";
+			//			char s8[5] = "s4:";
+			//			char s9[5] = "s5:";
+			//			char s10[5] = "s6:";
+			//			char s11[5] = "s7:";
+			//			char s12[5] = "s8:";
+			char s13[5] = "EOF:";
+
+			char *p = s_str;
+			uint16_t testsize = strlen(s_str);
+
+			memcpy(&data_temp_out[index_cc], s_str, strlen(s_str));
+			index_cc = index_cc + strlen(s_str);
 
 			data_temp_out[index_cc] = '$';
 			index_cc ++;
 
 			//	numsel next
-			memcpy(&data_temp_out[index_cc], s2, strlen(s2));
-			index_cc = index_cc + strlen(s2);
+			memcpy(&data_temp_out[index_cc], s2_str, strlen(s2_str));
+			index_cc = index_cc + strlen(s2_str);
 			data_temp_out[index_cc] = '9'; // this is where the number of selections needs to be.
 			// second digit
 			//then '$'
@@ -1401,8 +1448,8 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			index_cc ++;
 
 			//numShelf next
-			memcpy(&data_temp_out[index_cc], s3, strlen(s3));
-			index_cc = index_cc + strlen(s3);
+			memcpy(&data_temp_out[index_cc], s3_str, strlen(s3_str));
+			index_cc = index_cc + strlen(s3_str);
 			data_temp_out[index_cc] = '8'; // this is where the number of shelves needs to be.
 			// second digit
 			//then '$'
@@ -1411,8 +1458,8 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			index_cc ++;
 
 			//changes next
-			memcpy(&data_temp_out[index_cc], s4, strlen(s4));
-			index_cc = index_cc + strlen(s4);
+			memcpy(&data_temp_out[index_cc], s4_str, strlen(s4_str));
+			index_cc = index_cc + strlen(s4_str);
 
 			data_temp_out[index_cc] = '0'; // this is where changes should reflect truth or not.
 			// second digit
@@ -1422,74 +1469,115 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			index_cc ++;
 
 			//shelf n
-			memcpy(&data_temp_out[index_cc], s5, strlen(s5));
-			index_cc = index_cc + strlen(s5);
+//			memcpy(&data_temp_out[index_cc], s5, strlen(s5));
+//			index_cc = index_cc + strlen(s5);
 
 
 
-			for (uint8_t xx = 0; xx< traySels[0]; xx ++){
-			data_temp_out[index_cc] = 48 + (inv[0][xx])/10; // from an integer to an ascii char.
-			index_cc ++;
-			data_temp_out[index_cc] = 48 + (inv[0][xx])%10; // from an integer to an ascii char.
-			index_cc ++;
-			//if(xx != traySels[0]){}
-			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
-			index_cc ++;
+			//			for (uint8_t xx = 0; xx< traySels[0]; xx ++){
+			//				data_temp_out[index_cc] = 48 + (inv[0][xx])/10; // from an integer to an ascii char.
+			//				index_cc ++;
+			//				data_temp_out[index_cc] = 48 + (inv[0][xx])%10; // from an integer to an ascii char.
+			//				index_cc ++;
+			//				//if(xx != traySels[0]){}
+			//				data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
+			//				index_cc ++;
+			//			}
+
+
+
+
+			for(uint8_t yy = 0; yy< numTrays; yy ++){
+				memcpy(&data_temp_out[index_cc], sx_str[yy], strlen(sx_str[yy]));
+				index_cc = index_cc + strlen(sx_str[yy]);
+				for (uint8_t xx = 0; xx< traySels[yy]; xx ++){
+					data_temp_out[index_cc] = 48 + (inv[yy][xx])/10; // from an integer to an ascii char.
+					index_cc ++;
+					data_temp_out[index_cc] = 48 + (inv[yy][xx])%10; // from an integer to an ascii char.
+					index_cc ++;
+					//if(xx != traySels[0]){}
+					if(xx == (traySels[yy]-1)){
+						data_temp_out[index_cc] = '$'; // this is where the number of selections needs to be.
+						index_cc ++;
+					}
+					else{
+						data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
+						index_cc ++;
+					}
+				}
 			}
 
-//			data_temp_out[index_cc] = '2';
-//			index_cc ++;
-//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
-//			index_cc ++;
-//			data_temp_out[index_cc] = '3';
-//			index_cc ++;
-//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
-//			index_cc ++;
-//			data_temp_out[index_cc] = '4';
-//			index_cc ++;
-//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
-//			index_cc ++;
-//			data_temp_out[index_cc] = '5';
-//			index_cc ++;
-//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
-//			index_cc ++;
-//			data_temp_out[index_cc] = '7';
-//			index_cc ++;
-			data_temp_out[index_cc] = '$';
-			index_cc ++;
+
+
+
+
+
+
+			//			data_temp_out[index_cc] = '2';
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = '3';
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = '4';
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = '5';
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = ','; // this is where the number of selections needs to be.
+			//			index_cc ++;
+			//			data_temp_out[index_cc] = '7';
+			//			index_cc ++;
+
+			memcpy(&data_temp_out[index_cc], s13, strlen(s13));
+			index_cc = index_cc + strlen(s13);
+
 
 
 			//Indices of Len of packet reside at 6,7,8. (LSB to MSB)
 			//So at this point, where we have the end length of the packet,
 			// we can update the true leng.
-			//Important; we'll let the length variable reflect that there are 6 additional control characters past the end of the index..
-			// (these are: EOF, :, Checksum_MSB, CHECKSUM_LSB, '\r', '\n')
+			//Important; we'll let the length variable reflect that there are 2 chksum bytes + 2 additional control characters past the end of the index..
+			// (these are: Checksum_MSB, CHKSUM_MIDDLEB, CHECKSUM_LSB, '\r', '\n')
 
-			data_temp_out[6] = ((index_cc+6)/100)+48;
-			data_temp_out[7] = (((index_cc+6)/10)%10) +48;
-			data_temp_out[8] = ((index_cc+6)%10) +48;
+			uint8_t dataLen = strlen(data_temp_out);
+			data_temp_out[6] = ((index_cc+5)/100)+48;
+			data_temp_out[7] = (((index_cc+5)/10)%10) +48;
+			data_temp_out[8] = ((index_cc+5)%10) +48;
 
 
 			uint32_t calc = 0;
 			for(int ii = 0; ii< index_cc; ii++){
 				calc += data_temp_out[ii];
+
 			}
 
-			uint32_t checksum= calc%17;
-			char check_str[2];
-			check_str[0] = checksum /10;
-			check_str[1] = checksum %10;
+			//			char testchk[108] = "$Len:105$LocationID:placeholder$numSel:9$numShelf:8$changes:0$s1:s1:00,01,04,06$s2:02,07,09,11$EOF:";
+			//
+			//			calc = 0;
+			//			for(int ii = 0; ii< 106; ii++){
+			//				calc += testchk[ii];
+			//			}
+			//uint16_t testchkky = calc %256;
 
+			uint32_t checksum= calc%256;
+			char check_str[3];
+			check_str[0] = checksum /100;
+			check_str[1] = (checksum /10)%10;
+			check_str[2] = checksum %10;
 
-			data_temp_out[index_cc] = 0x03;
-			index_cc ++;
-			data_temp_out[index_cc] = ':';
-			index_cc ++;
+			//
+			//			data_temp_out[index_cc] = 0x03;
+			//			index_cc ++;
 			data_temp_out[index_cc] = (check_str[0])+48;
 			index_cc ++;
 			data_temp_out[index_cc] = (check_str[1])+48;
 			index_cc ++;
-
+			data_temp_out[index_cc] = (check_str[2])+48;
+			index_cc ++;
 
 
 
@@ -1566,7 +1654,6 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 		}
 
 	}
-
 }
 
 
@@ -1739,10 +1826,10 @@ static void SensorConfig_All()
 		switch(ij)
 		{
 		case 0:
-			d3 = 0b00000100; // d3 is the selector for the MainBoardSide I2c Switch
+			d3 = 0b00000001; // d3 is the selector for the MainBoardSide I2c Switch
 			break;
 		case 1:
-			d3 = 0b00000001; // d3 is the selector for the MainBoardSide I2c Switch
+			d3 = 0b00000010; // d3 is the selector for the MainBoardSide I2c Switch
 			break;
 		case 2:
 			d3 = 0b00000100; // d3 is the selector for the MainBoardSide I2c Switch
