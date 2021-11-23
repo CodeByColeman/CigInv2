@@ -5331,19 +5331,20 @@ int VL53L0X_StartMeasurementSimplified(VL53L0X_DEV Dev, OperatingMode operating_
 		//*
 		//        switch(rangingConfig) {
 		//        case LONG_RANGE:
-		signalLimit = (FixPoint1616_t)(0.1*65536);
-		sigmaLimit = (FixPoint1616_t)(60*65536);
-		timingBudget = 33000;
-		preRangeVcselPeriod = 18;
-		finalRangeVcselPeriod = 14;
+//		signalLimit = (FixPoint1616_t)(0.1*65536);
+//		sigmaLimit = (FixPoint1616_t)(60*65536);
+//		timingBudget = 33000;
+//		preRangeVcselPeriod = 18;
+//		finalRangeVcselPeriod = 14;
 		/*        	break;
         case HIGH_ACCURACY:
+        */
 			signalLimit = (FixPoint1616_t)(0.25*65536);
 			sigmaLimit = (FixPoint1616_t)(18*65536);
 			timingBudget = 200000;
 			preRangeVcselPeriod = 14;
 			finalRangeVcselPeriod = 10;
-			break;
+		/*   break;
         case HIGH_SPEED:
 			signalLimit = (FixPoint1616_t)(0.25*65536);
 			sigmaLimit = (FixPoint1616_t)(32*65536);

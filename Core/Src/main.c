@@ -344,7 +344,7 @@ int main(void)
 
 
 
-		SensorConfig_All();
+	SensorConfig_All();
 
 	//	status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
 	//	status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
@@ -746,7 +746,12 @@ int main(void)
 		uint32_t cnt = 0;
 		uint32_t cnt2 = 0;
 		uint16_t s3_vals[256];
+		uint16_t s4_vals[256];
+		uint16_t s5_vals[256];
+		uint16_t s1_vals[256];
 		uint16_t s2_vals[256];
+
+//		uint16_t s2_vals[256];
 
 		float s2_dev = 0;
 		float raw_dev = 0;
@@ -754,29 +759,30 @@ int main(void)
 		float raw_mean = 0;
 
 		while (1){
-			avgDist[0][0] = 266;
-			avgDist[0][1] = 233;
-			avgDist[0][2] = 166;
-			avgDist[0][3] = 133;
-			avgDist[1][0] = 206;
-			avgDist[1][1] = 103;
-			avgDist[1][2] = 66;
-			avgDist[1][3] = 33;
-			//			d3 = 0b00000001; // d3 is the selector for the MainBoardSide I2c Switch
-			//
-			//			status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
-			//			status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
-			//
-			//			VL53L0X_GetDistance(&sx[0][0], &distance);
-			//			avgDist[0][0] = avgDist[0][0]*(alpha) + distance*(beta);
-			//			VL53L0X_GetDistance(&sx[0][1], &distance);
-			//			avgDist[0][1] = avgDist[0][1]*(alpha) + distance*(beta);
-			//			VL53L0X_GetDistance(&sx[0][2], &distance);
-			//			avgDist[0][2] = avgDist[0][2]*(alpha) + distance*(beta);
-			//			VL53L0X_GetDistance(&sx[0][3], &distance);
-			//			avgDist[0][3] = avgDist[0][3]*(alpha) + distance*(beta);
-			//
-			//
+			//			avgDist[0][0] = 266;
+			//			avgDist[0][1] = 233;
+			//			avgDist[0][2] = 166;
+			//			avgDist[0][3] = 133;
+			//			avgDist[1][0] = 206;
+			//			avgDist[1][1] = 103;
+			//			avgDist[1][2] = 66;
+			//			avgDist[1][3] = 33;
+			d3 = 0b00000001; // d3 is the selector for the MainBoardSide I2c Switch
+
+			status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
+			status1 = HAL_I2C_Master_Receive(&hi2c1, I2C_Dev1_addr ,&d2, 1, 1000);
+
+			VL53L0X_GetDistance(&sx[0][0], &distance);
+			avgDist[0][0] = avgDist[0][0]*(alpha) + distance*(beta);
+			VL53L0X_GetDistance(&sx[0][1], &distance);
+			avgDist[0][1] = avgDist[0][1]*(alpha) + distance*(beta);
+			VL53L0X_GetDistance(&sx[0][2], &distance);
+			avgDist[0][2] = avgDist[0][2]*(alpha) + distance*(beta);
+			VL53L0X_GetDistance(&sx[0][3], &distance);
+			avgDist[0][3] = avgDist[0][3]*(alpha) + distance*(beta);
+			VL53L0X_GetDistance(&sx[0][4], &distance);
+			avgDist[0][4] = avgDist[0][4]*(alpha) + distance*(beta);
+
 			//			d3 = 0b00000100; // d3 is the selector for the MainBoardSide I2c Switch
 			//
 			//			status1 = HAL_I2C_Master_Transmit(&hi2c1, I2C_Dev1_addr ,&d3, 1, 1000);
@@ -800,15 +806,19 @@ int main(void)
 			//			avg_dist3 = avg_dist3*(alpha) + distance*(beta);
 			//			VL53L0X_GetDistance(&s8, &distance);
 			//			avg_dist4 = avg_dist4*(alpha) + distance*(beta);
+			s1_vals[cnt] = avgDist[0][0];
+			s2_vals[cnt] = avgDist[0][1];
+			s3_vals[cnt] = avgDist[0][2];
+			s4_vals[cnt] = avgDist[0][3];
 
-			s3_vals[cnt] = distance;
+			s5_vals[cnt] = avgDist[0][4];
 			s2_vals[cnt] = avg_dist2;
 
 			HAL_Delay(5);
 			cnt++;
 			//			cnt = cnt % 256;
 
-			if(cnt == 128 )
+			if(cnt == 32 )
 			{
 				__HAL_UART_ENABLE_IT(&huart6, UART_IT_IDLE);  // Enable serial port idle interrupt
 				HAL_Delay(200);
@@ -1469,8 +1479,8 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			index_cc ++;
 
 			//shelf n
-//			memcpy(&data_temp_out[index_cc], s5, strlen(s5));
-//			index_cc = index_cc + strlen(s5);
+			//			memcpy(&data_temp_out[index_cc], s5, strlen(s5));
+			//			index_cc = index_cc + strlen(s5);
 
 
 
@@ -1912,6 +1922,8 @@ static void SensorConfig_All()
 				mcp23017_write_gpio(&hmcp, MCP23017_PORTB);
 				HAL_Delay(1000);
 				VL53L0X_Start(&sx[ij][4], s5_newAddr);
+				status1 = HAL_I2C_IsDeviceReady(&hi2c1, s5_newAddr , 1, 1000 );
+
 				break;
 			case 5:
 				hmcp.gpio[MCP23017_PORTB] = 0b00111111;//hmcp.gpio[MCP23017_PORTA];
