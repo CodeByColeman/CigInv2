@@ -182,12 +182,13 @@ VL53L0X_Dev_t sx[numTrays][maxSelsPerTray];
 uint8_t inv[numTrays][maxSelsPerTray];
 uint16_t avgDist[numTrays][maxSelsPerTray];
 uint16_t invVal = 0;
-uint8_t traySels[numTrays];
+uint8_t traySels[8];
 
-char s_str[50]; //= "LocationID:placeholder";
-char s2_str[25];// = "numSel:";
-char s3_str[25];// = "numShelf:";
-char s4_str[25];// = "changes:";
+char s_str[10]; //= "LocationID:placeholder";
+char s1_str[25]; //= "LocationID:placeholder";
+char s2_str[10];// = "numSel:";
+char s3_str[12];// = "numShelf:";
+char s4_str[10];// = "changes:";
 char sx_str[8][5]; // for s1:, s2: ... sx
 
 
@@ -200,7 +201,8 @@ char sx_str[8][5]; // for s1:, s2: ... sx
  */
 int main(void)
 {
-	strcpy(s_str, "LocationID:placeholder");
+	strcpy(s_str, "Vers:1.1");
+	strcpy(s1_str, "LocationID:placeholder");
 	strcpy(s2_str, "numSel:");
 	strcpy(s3_str, "numShelf:");
 	strcpy(s4_str, "changes:");
@@ -265,6 +267,7 @@ int main(void)
 	traySels[6] = Tray6_Sels;
 	traySels[7] = Tray7_Sels;
 
+	strcpy(s1_str, "LocationID:placeholder");
 
 	int8_t config_arr[numTrays][maxSelsPerTray];  // so here, we have 2d array of empty vals where we will have space for maxSelsPerShelf number of sels.
 	// 													without needing the space neccessarily. To be initialized in main.
@@ -751,14 +754,18 @@ int main(void)
 		uint16_t s1_vals[256];
 		uint16_t s2_vals[256];
 
-//		uint16_t s2_vals[256];
+		//		uint16_t s2_vals[256];
 
 		float s2_dev = 0;
 		float raw_dev = 0;
 		float s2_mean = 0;
 		float raw_mean = 0;
 
+
+		__HAL_UART_ENABLE_IT(&huart6, UART_IT_IDLE);  // Enable serial port idle interrupt
+
 		while (1){
+
 			//			avgDist[0][0] = 266;
 			//			avgDist[0][1] = 233;
 			//			avgDist[0][2] = 166;
@@ -818,21 +825,25 @@ int main(void)
 			cnt++;
 			//			cnt = cnt % 256;
 
+
 			if(cnt == 32 )
 			{
-				__HAL_UART_ENABLE_IT(&huart6, UART_IT_IDLE);  // Enable serial port idle interrupt
+				USER_UART_IRQHandler(&huart6);
+
 				HAL_Delay(200);
 
 
 				//rough draft for inventory math
 				for (uint8_t mm = 0; mm< numTrays; mm++){
 					for (uint8_t nn = 0; nn< traySels[mm]; nn++){
-						invVal = abs(266 - avgDist[mm][nn])/21;
+						invVal = abs(280 - avgDist[mm][nn])/21;
 						inv[mm][nn] = invVal;
 					}
 				}
-
-
+				// test data misc
+				inv[1][0] = rand()%3;
+				inv[1][1] = rand()%4;
+				inv[1][2] = rand()%9;
 
 				s2_mean = 0;
 				raw_mean = 0;
@@ -1195,7 +1206,7 @@ static void MX_USART6_UART_Init(void)
 
 	/* USER CODE END USART6_Init 1 */
 	huart6.Instance = USART6;
-	huart6.Init.BaudRate = 57600;
+	huart6.Init.BaudRate = 115200;
 	huart6.Init.WordLength = UART_WORDLENGTH_8B;
 	huart6.Init.StopBits = UART_STOPBITS_1;
 	huart6.Init.Parity = UART_PARITY_NONE;
@@ -1392,6 +1403,29 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			HAL_UART_DMAStop(&huart6);
 			data_length  = BUFFER_SIZE - __HAL_DMA_GET_COUNTER(&hdma_usart6_rx);
 
+			//			uint32_t calc2 = 1; //start it at 1 bc of a Start Of Frame char that is annoying to copy paste into gtkterm. (but exists in my true comms coming from st)
+			//
+			//			for(int ii2 = 0; ii2< data_length-3; ii2++){
+			//				calc2 += data_PC_in[ii2];
+			//			}
+			//			uint32_t checksum2= calc2%256;
+			//			char check_str2[3];
+			//			check_str2[0] = (checksum2 /100)+48 ;
+			//			check_str2[1] = ((checksum2 /10)%10)+48;
+			//			check_str2[2] = (checksum2 %10)+48;
+			//
+			//			//end 			//checking my checksum for aggreance
+			//			//end This would be where we would do anything interesting with the received data.
+			data_PC_in[data_length] = '\r';
+			data_PC_in[data_length+1] = '\n';
+
+			HAL_UART_Transmit(&huart6, data_PC_in,data_length+2,0x200); //echo back to us.
+			//			HAL_UART_Transmit(&huart6, check_str2,3,0x200); //show me my recomputed sum post rx
+		}
+
+
+
+
 			memset(data_temp_out,0,BUFFER_SIZE);
 			uint16_t index_cc = 0;
 			//			memcpy(data_temp_out,data_PC_in, data_length);
@@ -1446,12 +1480,24 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 
 			data_temp_out[index_cc] = '$';
 			index_cc ++;
+			/////////////////////////////////////////////////////////////////////////////////////////
+			memcpy(&data_temp_out[index_cc], s1_str, strlen(s1_str));
+			index_cc = index_cc + strlen(s1_str);
+
+			data_temp_out[index_cc] = '$';
+			index_cc ++;
+
 
 			//	numsel next
 			memcpy(&data_temp_out[index_cc], s2_str, strlen(s2_str));
 			index_cc = index_cc + strlen(s2_str);
-			data_temp_out[index_cc] = '9'; // this is where the number of selections needs to be.
+			//calc the number of sels
+			uint8_t numSels = Tray0_Sels + Tray1_Sels + Tray2_Sels + Tray3_Sels + Tray4_Sels + Tray5_Sels + Tray6_Sels + Tray7_Sels;
+			data_temp_out[index_cc] = 48 + (numSels/10); // this is where the number of selections needs to be.
+
 			// second digit
+			index_cc ++;
+			data_temp_out[index_cc] = 48 + (numSels%10); // this is where the number of selections needs to be.
 			//then '$'
 			index_cc ++;
 			data_temp_out[index_cc] = '$';
@@ -1460,8 +1506,11 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			//numShelf next
 			memcpy(&data_temp_out[index_cc], s3_str, strlen(s3_str));
 			index_cc = index_cc + strlen(s3_str);
-			data_temp_out[index_cc] = '8'; // this is where the number of shelves needs to be.
-			// second digit
+			data_temp_out[index_cc] = 48 + (numTrays/10); // this is where the number of shelves needs to be.
+			index_cc ++;
+
+			data_temp_out[index_cc] = 48 + (numTrays%10); // this is where the number of shelves needs to be.
+			index_cc ++;
 			//then '$'
 			index_cc ++;
 			data_temp_out[index_cc] = '$';
@@ -1554,9 +1603,9 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			// (these are: Checksum_MSB, CHKSUM_MIDDLEB, CHECKSUM_LSB, '\r', '\n')
 
 			uint8_t dataLen = strlen(data_temp_out);
-			data_temp_out[6] = ((index_cc+5)/100)+48;
-			data_temp_out[7] = (((index_cc+5)/10)%10) +48;
-			data_temp_out[8] = ((index_cc+5)%10) +48;
+			data_temp_out[6] = ((index_cc+3)/100)+48;
+			data_temp_out[7] = (((index_cc+3)/10)%10) +48;
+			data_temp_out[8] = ((index_cc+3)%10) +48;
 
 
 			uint32_t calc = 0;
@@ -1636,7 +1685,7 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			 */ //End of Dualie setup;
 			HAL_UART_Receive_DMA(&huart6, data_PC_in, BUFFER_SIZE);
 
-		}
+
 	}
 	else if(USART2 == huart->Instance)                                   //Determine whether it is serial port 1
 	{
@@ -1651,8 +1700,23 @@ void USER_UART_IRQHandler(UART_HandleTypeDef *huart){
 			// This would be where we would do anything interesting with the received data.
 
 
+			//			//checking my checksum for aggreance
+			//
+			//			int index_cc2 = 0;
+			//			uint32_t calc2 = 0;
+			//			for(int ii2 = 0; ii2< index_cc2; ii2++){
+			//				calc2 += data_cell_RX[ii2];
+			//			}
+			//			uint32_t checksum2= calc2%256;
+			//			char check_str2[3];
+			//			check_str2[0] = (checksum2 /100)+48 ;
+			//			check_str2[1] = ((checksum2 /10)%10)+48;
+			//			check_str2[2] = (checksum2 %10)+48;
+
+			//end 			//checking my checksum for aggreance
 			//end This would be where we would do anything interesting with the received data.
 			HAL_UART_Transmit(&huart6, data_temp_out,data_length,0x200); //echo back to us.
+			//			HAL_UART_Transmit(&huart6, check_str2,3,0x200); //show me my recomputed sum post rx
 			memset(data_temp_out,0,data_length);
 			//Zero Receiving Buffer
 
